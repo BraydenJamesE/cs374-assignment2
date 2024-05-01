@@ -1,6 +1,11 @@
+#include <dirent.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+
+
+
 
 int getInitialChoice() { // this function gets the initial choice from the user. Rather to Select a file to process or to exit the program.
     while (true) { // Continually asking for the right input until the correct one is given.
@@ -50,8 +55,51 @@ int getFileProcessChoice() { // getFileProcessChoice
 } // end of "getFileProcessChoice" function
 
 
-void processLargestFile() {
+int getFileSize(const char* fileName) { // This function returns the number of newline chars in the given file (indicating its length).
+    int newlineCounter = 0;
+    FILE* file = fopen(fileName, "r");
+    if (file != NULL) {
+        char character;
+        while ((character = fgetc(file)) != EOF) {
+            if (character == '\n') {
+                newlineCounter++;
+            }
+        }
+    }
+    fclose(file);
+    return newlineCounter;
+} // end of "getFileSize" function
 
+
+char* getLargestFileName() {
+    DIR *dir;
+    struct dirent *entry;
+    dir = opendir(".");
+    char* largestFileName = malloc(sizeof(char) * 255); // 255 is the max file name length on mac.
+    int largestFileSize = 0;
+    while ((entry = readdir(dir)) != NULL) {
+        if (strncmp(entry->d_name, "movies_", strlen("movies_")) == 0) { // checking files that have the required prefix "movies_"
+            int currentFileSize = getFileSize(entry->d_name); // getting the current file size
+            if (currentFileSize > largestFileSize) { // if the current file size is greater than the largest file so far, update the largest file to the current file
+                largestFileSize = currentFileSize;
+                strcpy(largestFileName, entry->d_name); // copy the current file name to the largest file name string
+            }
+            else if (currentFileSize == largestFileSize
+                && strcmp(entry->d_name + strlen(entry->d_name) - strlen(".csv"), ".csv") == 0) { // if the largest file size is the same as the current file size and the current file ends in ".csv", update the current file to the largest file
+                strcpy(largestFileName, entry->d_name); // copy the current file name to the largest file name string
+            }
+        }
+    } // end of while loop
+    return largestFileName;
+} // end of "getLargestFileName"
+
+
+void processLargestFile() {
+    char* largestFileName = malloc(sizeof (char) * 255);
+    strcpy(largestFileName, getLargestFileName());
+
+
+    free(largestFileName);
 } // end of "processLargestFile" function
 
 
