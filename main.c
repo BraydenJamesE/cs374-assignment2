@@ -181,8 +181,7 @@ void processFiles(char* fileToProcess, char* directoryName) {
             else { // if this is the first movie at this index, copy the movieTitle directly into that location.
                 size_t memorySize = sizeof(char) * (strlen(movieTitle) + 2); // mem. size
                 listOfMovieTitlesPerYear[yearIndex] = malloc(memorySize); // allocating mem.
-                //strcpy(listOfMovieTitlesPerYear[yearIndex], movieTitle); // copying movie title into array
-                snprintf(listOfMovieTitlesPerYear[yearIndex], memorySize, "%s,", listOfMovieTitlesPerYear[yearIndex]);
+                snprintf(listOfMovieTitlesPerYear[yearIndex], memorySize, "%s,", movieTitle);
             }
 
 
@@ -200,6 +199,7 @@ void processFiles(char* fileToProcess, char* directoryName) {
 
     char* template = "YYYY.txt";
     size_t filePathSize = sizeof(char) * (strlen(directoryName) + strlen(template) + 2);
+
     for(int i = 0; i < numberOfYears; i++) {
 
         if (listOfMovieTitlesPerYear[i] == NULL) {
