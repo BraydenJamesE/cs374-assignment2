@@ -95,7 +95,11 @@ char* getLargestFileName() {
 
 void createDirectory(char* directoryName) {
     mode_t permissions = 0705; // Permissions gathered from this source: https://jameshfisher.com/2017/02/24/what-is-mode_t/
-    //mkdir(directoryName, permissions); // creating directory
+
+
+    mkdir(directoryName, permissions); // creating directory
+
+
     printf("Created directory with name %s \n", directoryName);
 } // end of "createDirectory" function
 
@@ -110,9 +114,12 @@ char* createFile(char* directoryName, char* year) {
     snprintf(fileName, sizeof(char) * (strlen(template) + 1), "%s.txt", year); // creating a string for the fileName
 
     snprintf(filePath, filePathSize, "%s/%s", directoryName, fileName); // creating the file in the directory.
-//    FILE* file = fopen(filePath, "w"); // creating the file
-//    chmod(filePath, permissions); // setting the permissions of the file
-//    fclose(file); // closing the file
+
+
+    FILE* file = fopen(filePath, "w"); // creating the file
+    chmod(filePath, permissions); // setting the permissions of the file
+    fclose(file); // closing the file
+
 
     free(fileName); // freeing the fileName memory
     return filePath;
@@ -190,12 +197,16 @@ void processFiles(char* fileToProcess, char* directoryName) {
         }
     } // end of while loop
     fclose(fileHandler);
-    FILE *yearFileHandler;
+
     char* template = "YYYY.txt";
     size_t filePathSize = sizeof(char) * (strlen(directoryName) + strlen(template) + 2);
     for(int i = 0; i < numberOfYears; i++) {
-        if (listOfMovieTitlesPerYear[i] == NULL) // if the value is not in the array, continue.
+
+        if (listOfMovieTitlesPerYear[i] == NULL) {
+            printf("Year %d is NULL. Skipping...\n", i + 1900);
             continue;
+
+        } // if the value is not in the array, continue.
         printf("%d: %s \n", i, listOfMovieTitlesPerYear[i]);
         char* filePath = malloc(filePathSize);
         char* year = malloc(sizeof(char) * (strlen("YYYY") + 1));
@@ -204,18 +215,20 @@ void processFiles(char* fileToProcess, char* directoryName) {
         snprintf(yearWithExtension, sizeof(char) * (strlen("YYYY.txt") + 1), "%s.txt", year);
         snprintf(filePath, filePathSize, "%s/%s", directoryName, yearWithExtension);
         printf("FilePath: %s\n", filePath);
-        yearFileHandler = fopen(filePath, "w");
+        FILE *yearFileHandler;
+        yearFileHandler = fopen(filePath, "a+");
 
         const char* delimiter = ",";
         char* token;
         token = strtok(listOfMovieTitlesPerYear[i], delimiter);
         while (token != NULL) {
-            //fprintf(yearFileHandler, "%s\n", token);
+            fprintf(yearFileHandler, "%s\n", token);
             printf("Token: %s \n", token);
             token = strtok(NULL, delimiter);
 
         }
         //fprintf(yearFileHandler, "%s\n", listOfMovieTitlesPerYear[i]);
+        fclose(yearFileHandler);
     }
 } // end of "processFiles" function
 
