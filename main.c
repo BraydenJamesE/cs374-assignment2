@@ -105,7 +105,7 @@ char* createFile(char* directoryName, char* year) {
     char* template = "YYYY.txt";
     char* fileName = malloc(sizeof(char) * (strlen(template) + 1));
     size_t filePathSize = sizeof(char) * (strlen(directoryName) + strlen(template) + 2);
-    char* filePath = malloc(sizeof(char) * filePathSize);
+    char* filePath = malloc(filePathSize);
 
     snprintf(fileName, sizeof(char) * (strlen(template) + 1), "%s.txt", year); // creating a string for the fileName
 
@@ -164,18 +164,18 @@ void processFiles(char* fileToProcess, char* directoryName) {
             printf("year: %s \n", token);
             char* filePath = createFile(directoryName, token);
 
-            int yearIndex = atoi(token) - 1900;
+            int yearIndex = atoi(token) - 1900; // getting the index for the "listOfMoviesTitlePerYear" array.
 
-            if (listOfMovieTitlesPerYear[yearIndex] != NULL) {
-                //int memorySize = sizeof(char) * (strlen(listOfMovieTitlesPerYear[yearIndex]) + strlen(movieTitle) + 2);
+            if (listOfMovieTitlesPerYear[yearIndex] != NULL) { // if the current movie is not the first movie at this index, append it to the list with a comma.
                 size_t stringSize = sizeof(char) * (strlen(listOfMovieTitlesPerYear[yearIndex]) + strlen(movieTitle) + 2);
                 listOfMovieTitlesPerYear[yearIndex] = realloc(listOfMovieTitlesPerYear[yearIndex], stringSize);
-                snprintf(listOfMovieTitlesPerYear[yearIndex], stringSize, "%s,%s", listOfMovieTitlesPerYear[yearIndex] ,movieTitle);
+                snprintf(listOfMovieTitlesPerYear[yearIndex], stringSize, "%s%s,", listOfMovieTitlesPerYear[yearIndex] ,movieTitle);
             }
-            else {
-                int memorySize = sizeof(char) * (strlen(movieTitle) + 1);
-                listOfMovieTitlesPerYear[yearIndex] = malloc(memorySize);
-                strcpy(listOfMovieTitlesPerYear[yearIndex], movieTitle);
+            else { // if this is the first movie at this index, copy the movieTitle directly into that location.
+                size_t memorySize = sizeof(char) * (strlen(movieTitle) + 2); // mem. size
+                listOfMovieTitlesPerYear[yearIndex] = malloc(memorySize); // allocating mem.
+                //strcpy(listOfMovieTitlesPerYear[yearIndex], movieTitle); // copying movie title into array
+                snprintf(listOfMovieTitlesPerYear[yearIndex], memorySize, "%s,", listOfMovieTitlesPerYear[yearIndex]);
             }
 
 
@@ -189,9 +189,33 @@ void processFiles(char* fileToProcess, char* directoryName) {
             break;
         }
     } // end of while loop
-
+    fclose(fileHandler);
+    FILE *yearFileHandler;
+    char* template = "YYYY.txt";
+    size_t filePathSize = sizeof(char) * (strlen(directoryName) + strlen(template) + 2);
     for(int i = 0; i < numberOfYears; i++) {
+        if (listOfMovieTitlesPerYear[i] == NULL) // if the value is not in the array, continue.
+            continue;
         printf("%d: %s \n", i, listOfMovieTitlesPerYear[i]);
+        char* filePath = malloc(filePathSize);
+        char* year = malloc(sizeof(char) * (strlen("YYYY") + 1));
+        sprintf(year, "%d", i + 1900);
+        char* yearWithExtension = malloc(sizeof(char) * (strlen("YYYY.txt") + 1));
+        snprintf(yearWithExtension, sizeof(char) * (strlen("YYYY.txt") + 1), "%s.txt", year);
+        snprintf(filePath, filePathSize, "%s/%s", directoryName, yearWithExtension);
+        printf("FilePath: %s\n", filePath);
+        yearFileHandler = fopen(filePath, "w");
+
+        const char* delimiter = ",";
+        char* token;
+        token = strtok(listOfMovieTitlesPerYear[i], delimiter);
+        while (token != NULL) {
+            //fprintf(yearFileHandler, "%s\n", token);
+            printf("Token: %s \n", token);
+            token = strtok(NULL, delimiter);
+
+        }
+        //fprintf(yearFileHandler, "%s\n", listOfMovieTitlesPerYear[i]);
     }
 } // end of "processFiles" function
 
